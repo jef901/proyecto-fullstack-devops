@@ -1,0 +1,31 @@
+name: Integracion Continua - Pruebas del Backend
+
+on:
+  push:
+    branches-ignore:
+      - main # Ejecutar en todas las ramas excepto en main
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar codigo del repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        cache-dependency-path: './backend-api/package-lock.json'
+
+    - name: Instalar dependencias del Backend
+      run: |
+        cd backend-api
+        npm ci
+
+    - name: Ejecutar Pruebas Automatizadas (Jest)
+      run: |
+        cd backend-api
+        npm test

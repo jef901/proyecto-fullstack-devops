@@ -82,6 +82,12 @@ app.post('/api/tareas', async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+// Solo levantar el servidor web en el puerto 3000 si NO estamos en entorno de pruebas
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
+  });
+}
+
+module.exports = app;
+
