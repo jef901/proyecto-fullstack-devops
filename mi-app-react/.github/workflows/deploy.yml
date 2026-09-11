@@ -1,0 +1,42 @@
+name: Deploy React to AWS S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Clonar el código del repositorio
+    - name: Checkout del codigo
+      uses: actions/checkout@v4
+
+    # 2. Configurar el entorno de Node.js
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    # 3. Instalar dependencias y compilar el proyecto
+    - name: Instalar y Compilar App
+      run: |
+        npm ci
+        npm run build
+
+    # 4. Configurar las credenciales de AWS
+    - name: Configurar credenciales de AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    # 5. Subir los archivos compilados al Bucket S3
+    - name: Desplegar a S3
+      run: |
+        aws s3 sync dist/ s3://$(aws s3 ls | grep jef901-react-app | awk '{print $3}') --delete
+

@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Servidor de Base de Datos (PostgreSQL)
+  base-datos:
+    image: postgres:15-alpine
+    container_name: devops-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: devops_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - mi_disco_postgres:/var/lib/postgresql/data # <--- ¡El volumen persistente!
+    networks:
+      - red-devops
+
+  # Servidor de Aplicación (Node.js API)
+  backend:
+    build: ./backend-api
+    container_name: devops-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: base-datos
+      DB_USER: postgres
+      DB_PASSWORD: password123
+      DB_NAME: devops_db
+    depends_on:
+      - base-datos # Garantiza que la BD encienda primero
+    networks:
+      - red-devops
+
+# Definición del volumen independiente
+volumes:
+  mi_disco_postgres:
+
+# Red interna aislada para que los contenedores hablen entre sí
+networks:
+  red-devops:
